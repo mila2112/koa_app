@@ -1,16 +1,25 @@
 import { PrismaClient } from "@prisma/client";
-import {DatabaseError, DatabaseErrorFactory} from "../../src/errors/customErrors";
+import { DatabaseErrorFactory } from "../../src/errors/customErrors";
 
 const prisma = new PrismaClient();
 
 class UsersRepository {
-    async createUser(email: string, password: string) {
+    async createUser(fullName: string, email: string, password: string, phone?: string, role?: string) {
         try {
             return await prisma.user.create({
-                data: { email, password },
+                data: {
+                    email,
+                    password,
+                    fullName,
+                    phone,
+                    role
+                },
                 select: {
                     id: true,
                     email: true,
+                    fullName: true,
+                    phone: true,
+                    role: true,
                     createdAt: true
                 },
             });
@@ -67,6 +76,12 @@ class UsersRepository {
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving users count.');
             throw DatabaseErrorFactory.from(errorData);
         }
+    }
+
+    async deleteUser(id: number) {
+        return await prisma.user.delete({
+            where: { id },
+        });
     }
 }
 
