@@ -4,7 +4,8 @@
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon"
+    "start": "nodemon",
+    "seed": "cd db && npx prisma db seed"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,8 @@
     "@redis/client": "^1.6.0",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
+    "@types/joi": "^17.2.2",
+    "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/koa-passport": "^6.0.3",
     "@types/koa-session": "^6.4.5",
@@ -22,6 +25,8 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "dotenv-safe": "^9.1.0",
+    "joi": "^17.13.3",
+    "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "koa": "^2.15.3",
     "koa-bodyparser": "^4.4.1",
@@ -36,7 +41,9 @@
     "passport-local": "^1.0.0",
     "pg": "^8.13.1",
     "swagger-jsdoc": "^6.2.8",
-    "swagger2-koa": "^4.0.0"
+    "swagger-ui-koa": "^0.0.1",
+    "swagger2-koa": "^4.0.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@types/koa": "^2.15.0",
@@ -45,8 +52,12 @@
     "@types/node": "^22.9.0",
     "@types/passport-local": "^1.0.38",
     "@types/swagger-jsdoc": "^6.0.4",
+    "@types/yamljs": "^0.2.34",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }

@@ -1,0 +1,237 @@
+openapi: 3.0.0
+info:
+  title: Koa API
+  description: API Documentation for Koa-based application
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SignUpRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+    SignInRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    CarRequest:
+      type: object
+      properties:
+        year:
+          type: integer
+        vin:
+          type: string
+        price:
+          type: number
+        modelId:
+          type: integer
+        makeId:
+          type: integer
+        userId:
+          type: integer
+    CarEditRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        data:
+          type: object
+          properties:
+            year:
+              type: integer
+            vin:
+              type: string
+            price:
+              type: number
+            modelId:
+              type: integer
+            makeId:
+              type: integer
+            userId:
+              type: integer
+    DeleteRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 1
+        limit:
+          type: integer
+          default: 10
+
+paths:
+  /users/sign-up:
+    post:
+      summary: Sign up a new user
+      operationId: signUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Validation Error
+
+  /users/sign-in:
+    post:
+      summary: Sign in an existing user
+      operationId: signIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+      responses:
+        '200':
+          description: Logged in successfully
+        '401':
+          description: Unauthorized
+
+  /users:
+    get:
+      summary: Get all users with pagination
+      operationId: getUsers
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of users
+        '401':
+          description: Unauthorized
+
+  /users/{id}:
+    delete:
+      summary: Delete a user by ID for Admin
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /cars:
+    get:
+      summary: Get car details by user or by car ID
+      operationId: getUserCarById
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Car found
+        '404':
+          description: Car not found
+
+    post:
+      summary: Add a new car
+      operationId: addCar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarRequest'
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Car added successfully
+        '400':
+          description: Validation Error
+
+  /cars/edit:
+    put:
+      summary: Edit a car's information
+      operationId: editCar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarEditRequest'
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Car edited successfully
+        '404':
+          description: Car not found
+
+    delete:
+      summary: Delete a car by ID
+      operationId: deleteCar
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Car deleted successfully
+        '404':
+          description: Car not found
+

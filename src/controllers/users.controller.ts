@@ -2,7 +2,7 @@ import { Context } from 'koa';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { usersRepository } from '../../db/repositories/users.repository';
-import { ValidationError, UnauthorizedError } from '../errors/customErrors';
+import {ValidationError, UnauthorizedError, NotFoundError} from '../errors/customErrors';
 import { sendErrorResponse, sendResponse } from '../helpers/response.modifier';
 import { SignUpRequest } from 'index';
 import passport from "koa-passport";
@@ -11,7 +11,7 @@ import * as process from "node:process";
 class UsersController {
     async signUp(ctx: Context) {
         try {
-            const { email, password } = ctx.request.body as SignUpRequest;
+            const { fullName, phone, email, password, role } = ctx.request.body as SignUpRequest;
 
             if (!email || !password) {
                 throw new ValidationError('Email and password are required');
@@ -23,7 +23,7 @@ class UsersController {
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const user = await usersRepository.createUser( email, hashedPassword);
+            const user = await usersRepository.createUser(fullName, email, hashedPassword, phone, role);
 
             sendResponse(ctx, { user }, 201);
         } catch (error) {
@@ -39,7 +39,7 @@ class UsersController {
                 }
 
                 const token = jwt.sign(
-                    { id: user.id, email: user.email },
+                    { id: user.id, email: user.email, role: user.role },
                     process.env.JWT_SECRET!,
                     { expiresIn: '1h' }
                 );
@@ -55,7 +55,7 @@ class UsersController {
     async getUsers(ctx: Context) {
         try {
             const page = Number(ctx.request.query.page) || 1;
-            const limit = Number(ctx.request.query.limit) || 10;
+            const limit = Number(ctx.request.query.pageSize) || 10;
 
             const skip = (page - 1) * limit;
             const users = await usersRepository.getAllUsers({skip, limit});
@@ -67,6 +67,24 @@ class UsersController {
             sendErrorResponse(ctx, error);
         }
     }
+
+    async deleteUser(ctx: Context) {
+        try {
+            const { id } = ctx.params;
+
+            const user = await usersRepository.findById(Number(id));
+            if (!user) {
+                throw new NotFoundError('User not found');
+            }
+
+            await usersRepository.deleteUser(Number(id));
+
+            sendResponse(ctx, { message: 'User has been successfully deleted.' });
+        } catch (error) {
+            sendErrorResponse(ctx, error);
+        }
+    }
+
 
 }
 

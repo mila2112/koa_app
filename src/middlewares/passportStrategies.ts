@@ -5,7 +5,7 @@ import { usersRepository } from "../../db/repositories/users.repository";
 import { UnauthorizedError } from "../errors/customErrors";
 import bcrypt from "bcryptjs";
 import {Context} from "koa";
-import {sendErrorResponse} from "../helpers/response.modifier";
+import { sendErrorResponse } from "../helpers/response.modifier";
 
 export const localStrategy = () => {
     passport.use(
@@ -72,6 +72,22 @@ export const jwtAuth = async (ctx: Context, next: () => Promise<any>) => {
         ctx.state.user = user;
         return next();
     })(ctx, next);
+};
+
+export const permit = (roles: string[]) => {
+    return async (ctx: Context, next: () => Promise<any>) => {
+        const user = ctx.state.user;
+
+        if (!user) {
+            return sendErrorResponse(ctx, new UnauthorizedError("Authentication required"));
+        }
+
+        if (!roles.includes(user.role)) {
+            return sendErrorResponse(ctx, new UnauthorizedError("You do not have permission to access this resource"));
+        }
+
+        await next();
+    };
 };
 
 
