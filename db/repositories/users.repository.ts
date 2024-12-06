@@ -35,6 +35,7 @@ class UsersRepository {
                 where: { email },
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving user by email.');
             throw DatabaseErrorFactory.from(errorData);
         }
