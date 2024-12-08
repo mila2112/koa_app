@@ -10,7 +10,6 @@ servers:
 
 security:
   - BearerAuth: []
-
 components:
   securitySchemes:
     BearerAuth:
@@ -200,7 +199,6 @@ paths:
         '400':
           description: Validation Error
 
-  /cars/edit:
     put:
       summary: Edit a car's information
       operationId: editCar
