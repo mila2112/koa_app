@@ -51,18 +51,13 @@ class CarsRepository {
         }
     }
 
-    async findCarById(carId: number, userId?: number) {
+    async findCarById(id: number) {
         try {
-            const where: { id: number; userId?: number } = { id: carId };
-            if (userId) {
-                where.userId = userId;
-            }
-
             return await prisma.car.findUnique({
-                where,
+                where: { id },
             });
         } catch (error) {
-            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving car by userId.');
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving car by id.');
             throw DatabaseErrorFactory.from(errorData);
         }
     }

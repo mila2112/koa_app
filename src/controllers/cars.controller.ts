@@ -33,17 +33,14 @@ class CarsController {
             const reqUserId = ctx.state.user.id;
             const userRole = ctx.state.user.role;
 
-
-            const car = userRole === 'admin'
-                ? await carsRepository.findCarById(id)
-                : await carsRepository.findCarById(id, reqUserId);
-
-            if(!car) {
-                throw new NotFoundError('Car not found');
+            if (userRole === 'user' && data.userId) {
+                throw new ValidationError('User cannot change userId');
             }
 
-            if (userRole !== 'admin') {
-                delete data.userId;
+            const car = await carsRepository.findCarById(id);
+
+            if(!car || (userRole === 'user' && car.userId !== reqUserId)) {
+                throw new NotFoundError('Car not found');
             }
 
             const updatedCar = await carsRepository.editCar(id, data);
@@ -61,11 +58,9 @@ class CarsController {
 
             const { id } = ctx.request.body as GetUserCarByIdRequest;
 
-            const car = userRole === 'admin'
-                ? await carsRepository.findCarById(id)
-                : await carsRepository.findCarById(id, reqUserId);
+            const car = await carsRepository.findCarById(id);
 
-            if(!car) {
+            if(!car || (userRole === 'user' && car.userId !== reqUserId)) {
                 throw new NotFoundError('Car not found');
             }
 
@@ -82,11 +77,9 @@ class CarsController {
             const reqUserId = ctx.state.user.id;
             const userRole = ctx.state.user.role;
 
-            const car = userRole === 'admin'
-                ? await carsRepository.findCarById(Number(id))
-                : await carsRepository.findCarById(Number(id), reqUserId);
+            const car = await carsRepository.findCarById(id);
 
-            if(!car) {
+            if(!car || (userRole === 'user' && car.userId !== reqUserId)) {
                 throw new NotFoundError('Car not found');
             }
 
