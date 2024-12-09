@@ -1,4 +1,4 @@
-import {Prisma, PrismaClient} from "@prisma/client";
+import {Prisma, PrismaClient, Car } from "@prisma/client";
 import { DatabaseErrorFactory, NotFoundError } from "../../src/errors/customErrors";
 import { EditCarRequest } from "index";
 
@@ -62,7 +62,7 @@ class CarsRepository {
         }
     }
 
-    async findAllCars({ skip, take }: { skip: number, take: number }) {
+    async findAllCars({ skip, take }: Prisma.CarFindManyArgs): Promise<Car[]> {
         try {
             return await prisma.car.findMany({
                 skip: skip,
@@ -75,7 +75,7 @@ class CarsRepository {
     }
 
 
-    async findUsersCars(userId: number, { skip, take }: { skip: number, take: number }) {
+    async findUsersCars(userId: number, { skip, take }: Prisma.CarFindManyArgs): Promise<Car[]>  {
         try {
             return await prisma.car.findMany({
                 where: { userId },

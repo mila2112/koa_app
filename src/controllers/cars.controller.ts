@@ -58,9 +58,9 @@ class CarsController {
             const reqUserId = ctx.state.user.id;
             const userRole = ctx.state.user.role;
 
-            const { id } = ctx.request.body as GetUserCarByIdRequest;
+            const { id } = ctx.params;
 
-            const car = await carsRepository.findCarById(id);
+            const car = await carsRepository.findCarById(Number(id));
 
             if(!car || (userRole === Roles.User && car.userId !== reqUserId)) {
                 throw new NotFoundError('Car not found');

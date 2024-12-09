@@ -59,7 +59,7 @@ export const validationSchemas = {
     },
 
     getUserCarByIdSchema: {
-        body: Joi.object({
+        params: Joi.object({
             id: Joi.number().required(),
         }),
     },

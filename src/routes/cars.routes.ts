@@ -9,8 +9,8 @@ const carsRouter = new Router();
 
 carsRouter.prefix('/cars');
 
-carsRouter.get("/", jwtAuth, permit([Roles.User, Roles.Admin]), validate(validationSchemas.getUserCarByIdSchema), carsController.getUserCarById);
-carsRouter.get("/list", jwtAuth, permit([Roles.User, Roles.Admin]), validate(validationSchemas.getCarsListSchema), carsController.getCarsList);
+carsRouter.get("/", jwtAuth, permit([Roles.User, Roles.Admin]), validate(validationSchemas.getCarsListSchema), carsController.getCarsList);
+carsRouter.get("/:id", jwtAuth, permit([Roles.User, Roles.Admin]), validate(validationSchemas.getUserCarByIdSchema), carsController.getUserCarById);
 
 carsRouter.post("/", jwtAuth, permit([Roles.User, Roles.Admin]), validate(validationSchemas.createCarSchema), carsController.createCar);
 carsRouter.put("/:id", jwtAuth, permit([Roles.User, Roles.Admin]), validate(validationSchemas.editCarSchema), carsController.editCar);

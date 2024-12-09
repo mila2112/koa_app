@@ -164,84 +164,6 @@ paths:
 
   /cars:
     get:
-      summary: Get car details by user or by car ID
-      operationId: getUserCarById
-      parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: integer
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Car found
-        '404':
-          description: Car not found
-
-    post:
-      summary: Add a new car
-      operationId: addCar
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CarRequest'
-      security:
-        - BearerAuth: []
-      responses:
-        '201':
-          description: Car added successfully
-        '400':
-          description: Validation Error
-
-  /cars/{id}:
-    put:
-      summary: Edit a car's information
-      operationId: editCar
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CarEditRequest'
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Car edited successfully
-        '400':
-          description: Validation Error
-        '404':
-          description: Car not found
-
-    delete:
-      summary: Delete a car by ID
-      operationId: deleteCar
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Car deleted successfully
-        '404':
-          description: Car not found
-
-  /cars/list:
-    get:
       summary: Get a list of cars with pagination
       operationId: getCarsList
       parameters:
@@ -264,3 +186,80 @@ paths:
           description: List of cars
         '401':
           description: Unauthorized
+
+    post:
+      summary: Add a new car
+      operationId: addCar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarRequest'
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Car added successfully
+        '400':
+          description: Validation Error
+
+  /cars/{id}:
+    get:
+      summary: Get car details by car ID
+      operationId: getCarById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Car found
+        '404':
+          description: Car not found
+
+    put:
+      summary: Edit a car's information
+      operationId: editCar
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarEditRequest'
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Car edited successfully
+        '400':
+          description: Validation Error
+        '404':
+          description: Car not found
+
+    delete:
+      summary: Delete a car by ID
+      operationId: deleteCar
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Car deleted successfully
+        '404':
+          description: Car not found
