@@ -62,6 +62,52 @@ class CarsRepository {
         }
     }
 
+    async findAllCars({ skip, take }: { skip: number, take: number }) {
+        try {
+            return await prisma.car.findMany({
+                skip: skip,
+                take: take
+            });
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving all cars list.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
+
+    async findUsersCars(userId: number, { skip, take }: { skip: number, take: number }) {
+        try {
+            return await prisma.car.findMany({
+                where: { userId },
+                skip: skip,
+                take: take
+            });
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving user\'s cars list.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
+    async getTotalCarsCount() {
+        try {
+            return await prisma.car.count();
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error counting all cars.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
+    async getUsersCarsCount(userId: number) {
+        try {
+            return await prisma.car.count({
+                where: { userId }
+            });
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error counting user\'s cars.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
     async editCar(carId: number, data: Prisma.CarUncheckedUpdateInput) {
         try {
             if (data.userId) {

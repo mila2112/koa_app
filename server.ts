@@ -11,6 +11,7 @@ import carsRoutes from "./src/routes/cars.routes";
 import * as yaml from "js-yaml";
 import * as fs from "fs";
 import * as path from "path";
+import cors from "@koa/cors";
 
 
 const app = new Koa();
@@ -39,6 +40,13 @@ router.get("/swagger", koaSwagger({
     }
 }));
 
+app.use(cors({
+    origin: '*',
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
 app.use(userRoutes.routes());
 app.use(userRoutes.allowedMethods());
 
@@ -46,6 +54,8 @@ app.use(carsRoutes.routes());
 app.use(carsRoutes.allowedMethods());
 
 app.use(router.routes()).use(router.allowedMethods());
+
+
 
 const port = 3000;
 
