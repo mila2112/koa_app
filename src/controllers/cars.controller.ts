@@ -16,7 +16,7 @@ class CarsController {
                 throw new ValidationError('UserId is required for admin');
             }
 
-            userId = userRole === 'admin' ? userId : reqUserId;
+            userId = userRole === Roles.Admin ? userId : reqUserId;
 
             const car = await carsRepository.createCar(
                 { year, price, vin, userId: userId!, modelId, makeId }
