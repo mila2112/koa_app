@@ -58,9 +58,9 @@ class CarsController {
             const reqUserId = ctx.state.user.id;
             const userRole = ctx.state.user.role;
 
-            const { id } = ctx.request.body as GetUserCarByIdRequest;
+            const { id } = ctx.params;
 
-            const car = await carsRepository.findCarById(id);
+            const car = await carsRepository.findCarById(Number(id));
 
             if(!car || (userRole === Roles.User && car.userId !== reqUserId)) {
                 throw new NotFoundError('Car not found');
@@ -71,6 +71,43 @@ class CarsController {
             sendErrorResponse(ctx, error);
         }
     }
+
+    async getCarsList(ctx: Context) {
+        try {
+            const reqUserId = ctx.state.user.id;
+            const userRole = ctx.state.user.role;
+
+            const page = Number(ctx.request.query.page) || 1;
+            const pageSize = Number(ctx.request.query.pageSize) || 10;
+
+            const skip = (page - 1) * pageSize;
+            const take = pageSize;
+
+            let cars;
+            let totalCars;
+
+            if (userRole === Roles.Admin) {
+                cars = await carsRepository.findAllCars({ skip, take });
+                totalCars = await carsRepository.getTotalCarsCount();
+            } else {
+                cars = await carsRepository.findUsersCars(reqUserId, { skip, take });
+                totalCars = await carsRepository.getUsersCarsCount(reqUserId);
+            }
+
+            const totalPages = Math.ceil(totalCars / pageSize);
+
+            sendResponse(ctx, {
+                cars,
+                totalCount: totalCars,
+                totalPages,
+                currentPage: page,
+                pageSize: take
+            }, 200);
+        } catch (error) {
+            sendErrorResponse(ctx, error);
+        }
+    }
+
 
     async deleteCar(ctx: Context) {
         try {

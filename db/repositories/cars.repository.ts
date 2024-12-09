@@ -1,4 +1,4 @@
-import {Prisma, PrismaClient} from "@prisma/client";
+import {Prisma, PrismaClient, Car } from "@prisma/client";
 import { DatabaseErrorFactory, NotFoundError } from "../../src/errors/customErrors";
 import { EditCarRequest } from "index";
 
@@ -58,6 +58,52 @@ class CarsRepository {
             });
         } catch (error) {
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving car by id.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
+    async findAllCars({ skip, take }: Prisma.CarFindManyArgs): Promise<Car[]> {
+        try {
+            return await prisma.car.findMany({
+                skip: skip,
+                take: take
+            });
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving all cars list.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
+
+    async findUsersCars(userId: number, { skip, take }: Prisma.CarFindManyArgs): Promise<Car[]>  {
+        try {
+            return await prisma.car.findMany({
+                where: { userId },
+                skip: skip,
+                take: take
+            });
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving user\'s cars list.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
+    async getTotalCarsCount() {
+        try {
+            return await prisma.car.count();
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error counting all cars.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
+    }
+
+    async getUsersCarsCount(userId: number) {
+        try {
+            return await prisma.car.count({
+                where: { userId }
+            });
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error counting user\'s cars.');
             throw DatabaseErrorFactory.from(errorData);
         }
     }

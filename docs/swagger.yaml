@@ -164,21 +164,28 @@ paths:
 
   /cars:
     get:
-      summary: Get car details by user or by car ID
-      operationId: getUserCarById
+      summary: Get a list of cars with pagination
+      operationId: getCarsList
       parameters:
-        - name: id
+        - name: page
           in: query
-          required: true
+          required: false
           schema:
             type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
       security:
-        - BearerAuth: []
+        - BearerAuth: [ ]
       responses:
         '200':
-          description: Car found
-        '404':
-          description: Car not found
+          description: List of cars
+        '401':
+          description: Unauthorized
 
     post:
       summary: Add a new car
@@ -198,6 +205,23 @@ paths:
           description: Validation Error
 
   /cars/{id}:
+    get:
+      summary: Get car details by car ID
+      operationId: getCarById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Car found
+        '404':
+          description: Car not found
+
     put:
       summary: Edit a car's information
       operationId: editCar
@@ -214,7 +238,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CarEditRequest'
       security:
-        - BearerAuth: []
+        - BearerAuth: [ ]
       responses:
         '200':
           description: Car edited successfully
@@ -233,7 +257,7 @@ paths:
           schema:
             type: integer
       security:
-        - BearerAuth: []
+        - BearerAuth: [ ]
       responses:
         '200':
           description: Car deleted successfully

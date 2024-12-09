@@ -59,7 +59,7 @@ export const validationSchemas = {
     },
 
     getUserCarByIdSchema: {
-        body: Joi.object({
+        params: Joi.object({
             id: Joi.number().required(),
         }),
     },
@@ -67,6 +67,14 @@ export const validationSchemas = {
     deleteUserSchema: {
         params: Joi.object({
             id: Joi.number().required(),
+        }),
+    },
+
+
+    getCarsListSchema: {
+        query: Joi.object({
+            page: Joi.number().integer().min(1).default(1),
+            pageSize: Joi.number().integer().min(1).default(10)
         }),
     },
 };
