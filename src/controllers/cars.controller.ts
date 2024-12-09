@@ -10,16 +10,16 @@ class CarsController {
         try {
             const reqUserId = ctx.state.user.id;
             const userRole = ctx.state.user.role;
-            const { year, vin, price, makeId, modelId, userId } = ctx.request.body as CreateCarRequest;
+            let { year, vin, price, makeId, modelId, userId } = ctx.request.body as CreateCarRequest;
 
             if (userRole ===  Roles.Admin && !userId) {
                 throw new ValidationError('UserId is required for admin');
             }
 
-            const finalUserId = userRole === 'admin' ? userId : reqUserId;
+            userId = userRole === 'admin' ? userId : reqUserId;
 
             const car = await carsRepository.createCar(
-                year, price, vin, finalUserId, modelId, makeId
+                { year, price, vin, userId: userId!, modelId, makeId }
             );
 
             sendResponse(ctx, { car }, 201);

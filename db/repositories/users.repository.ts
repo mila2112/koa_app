@@ -8,15 +8,7 @@ class UsersRepository {
         try {
             return await prisma.user.create({
                 data,
-                select: {
-                    id: true,
-                    fullName: true,
-                    email: true,
-                    phone: true,
-                    role: true,
-                    createdAt: true,
-                    updatedAt: true,
-                },
+                omit: { password: true },
             });
         } catch (error) {
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Failed to create user');
@@ -52,15 +44,7 @@ class UsersRepository {
             return await prisma.user.findMany({
                 skip,
                 take,
-                select: {
-                    id: true,
-                    fullName: true,
-                    email: true,
-                    phone: true,
-                    role: true,
-                    createdAt: true,
-                    updatedAt: true,
-                },
+                omit: { password: true },
             });
         } catch (error) {
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving users.');

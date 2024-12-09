@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import {Prisma, PrismaClient} from "@prisma/client";
 import { DatabaseErrorFactory, NotFoundError } from "../../src/errors/customErrors";
 import { EditCarRequest } from "index";
 
 const prisma = new PrismaClient();
 
 class CarsRepository {
-    async createCar(year: number, price: number, vin: string, userId: number, modelId: number, makeId: number) {
+    async createCar(data: Prisma.CarUncheckedCreateInput) {
         try {
             const make = await prisma.make.findUnique({
-                where: { id: makeId },
+                where: { id: data.makeId },
                 include: {
                     models: true,
                 },
@@ -18,7 +18,7 @@ class CarsRepository {
                 throw new NotFoundError('Make not found');
             }
 
-            const modelExists = make.models.some((model) => model.id === modelId);
+            const modelExists = make.models.some((model) => model.id === data.modelId);
 
             if (!modelExists) {
                 throw new NotFoundError('Model not found for this make');
@@ -26,19 +26,19 @@ class CarsRepository {
 
             return await prisma.car.create({
                 data: {
-                    year,
-                    price,
-                    vin,
+                    year: data.year,
+                    price: data.price,
+                    vin: data.vin,
                     user: {
                         connect: {
-                            id: userId,
+                            id: data.userId,
                         },
                     },
                     model: {
-                        connect: { id: modelId },
+                        connect: { id: data.modelId },
                     },
                     make: {
-                        connect: { id: makeId },
+                        connect: { id: data.makeId },
                     },
                 },
             });
@@ -62,11 +62,11 @@ class CarsRepository {
         }
     }
 
-    async editCar(carId: number, data: EditCarRequest['data']) {
+    async editCar(carId: number, data: Prisma.CarUncheckedUpdateInput) {
         try {
             if (data.userId) {
                 const userExists = await prisma.user.findUnique({
-                    where: { id: data.userId },
+                    where: { id: data.userId as number },
                 });
 
                 if (!userExists) {
