@@ -1,26 +1,21 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma, User } from "@prisma/client";
 import { DatabaseErrorFactory } from "../../src/errors/customErrors";
 
 const prisma = new PrismaClient();
 
 class UsersRepository {
-    async createUser(fullName: string, email: string, password: string, phone?: string, role?: string) {
+    async createUser(data: Prisma.UserCreateInput): Promise<Omit<User, 'password'>> {
         try {
             return await prisma.user.create({
-                data: {
-                    email,
-                    password,
-                    fullName,
-                    phone,
-                    role
-                },
+                data,
                 select: {
                     id: true,
-                    email: true,
                     fullName: true,
+                    email: true,
                     phone: true,
                     role: true,
-                    createdAt: true
+                    createdAt: true,
+                    updatedAt: true,
                 },
             });
         } catch (error) {
@@ -29,7 +24,7 @@ class UsersRepository {
         }
     }
 
-    async findByEmail(email: string) {
+    async findByEmail(email: string): Promise<User | null> {
         try {
             return await prisma.user.findUnique({
                 where: { email },
@@ -41,28 +36,31 @@ class UsersRepository {
         }
     }
 
-    async findById(id: number) {
+    async findById(id: number): Promise<User | null> {
         try {
-            return prisma.user.findUnique({
+            return await prisma.user.findUnique({
                 where: { id },
             });
-
         } catch (error) {
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving user by ID.');
             throw DatabaseErrorFactory.from(errorData);
         }
     }
 
-    async getAllUsers({ skip, limit }: { skip: number; limit: number }) {
+    async getAllUsers({ skip, take }: Prisma.UserFindManyArgs): Promise<Omit<User, 'password'>[]> {
         try {
-            return prisma.user.findMany({
+            return await prisma.user.findMany({
                 skip,
-                take: limit,
+                take,
                 select: {
                     id: true,
+                    fullName: true,
                     email: true,
-                    createdAt: true
-                }
+                    phone: true,
+                    role: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
             });
         } catch (error) {
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving users.');
@@ -70,7 +68,8 @@ class UsersRepository {
         }
     }
 
-    async getTotalUsersCount() {
+
+    async getTotalUsersCount(): Promise<number> {
         try {
             return await prisma.user.count();
         } catch (error) {
@@ -79,13 +78,19 @@ class UsersRepository {
         }
     }
 
-    async deleteUser(id: number) {
-        return await prisma.user.delete({
-            where: { id },
-        });
+    async deleteUser(id: number): Promise<User> {
+        try {
+            return await prisma.user.delete({
+                where: { id },
+            });
+        } catch (error) {
+            const errorData = DatabaseErrorFactory.createErrorData(error, 'Error deleting user.');
+            throw DatabaseErrorFactory.from(errorData);
+        }
     }
 }
 
 export const usersRepository = new UsersRepository();
+
 
 

@@ -4,6 +4,7 @@ import passport from "koa-passport";
 import { jwtAuth, permit } from "../middlewares/passportStrategies";
 import { validate } from "../middlewares/validate.middleware";
 import { validationSchemas } from "../validations/validationSchemas";
+import { Roles } from "../types/index";
 
 const usersRouter = new Router();
 
@@ -14,7 +15,7 @@ usersRouter.post("/sign-in",  validate(validationSchemas.signInSchema), passport
 
 usersRouter.get("/", jwtAuth, validate(validationSchemas.getUsersSchema), usersController.getUsers);
 
-usersRouter.delete("/:id", jwtAuth, permit(["admin"]), validate(validationSchemas.deleteCarSchema), usersController.deleteUser);
+usersRouter.delete("/:id", jwtAuth, permit([Roles.Admin]), validate(validationSchemas.deleteCarSchema), usersController.deleteUser);
 
 export default usersRouter;
 

@@ -56,8 +56,6 @@ components:
     CarEditRequest:
       type: object
       properties:
-        id:
-          type: integer
         data:
           type: object
           properties:
@@ -199,9 +197,16 @@ paths:
         '400':
           description: Validation Error
 
+  /cars/{id}:
     put:
       summary: Edit a car's information
       operationId: editCar
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -213,6 +218,8 @@ paths:
       responses:
         '200':
           description: Car edited successfully
+        '400':
+          description: Validation Error
         '404':
           description: Car not found
 
@@ -232,4 +239,3 @@ paths:
           description: Car deleted successfully
         '404':
           description: Car not found
-
