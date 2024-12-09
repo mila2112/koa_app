@@ -37,8 +37,10 @@ export const validationSchemas = {
     },
 
     editCarSchema: {
-        body: Joi.object({
+        params: Joi.object({
             id: Joi.number().required(),
+        }),
+        body: Joi.object({
             data: Joi.object({
                 year: Joi.number().integer().optional(),
                 price: Joi.number().min(0).optional(),

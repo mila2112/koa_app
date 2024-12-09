@@ -11,19 +11,15 @@ import * as process from "node:process";
 class UsersController {
     async signUp(ctx: Context) {
         try {
-            const { fullName, phone, email, password, role } = ctx.request.body as SignUpRequest;
-
-            if (!email || !password) {
-                throw new ValidationError('Email and password are required');
-            }
+            let { fullName, phone, email, password, role } = ctx.request.body as SignUpRequest;
 
             const existingUser = await usersRepository.findByEmail(email);
             if (existingUser) {
                 throw new ValidationError('User with this email already exists');
             }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const user = await usersRepository.createUser(fullName, email, hashedPassword, phone, role);
+            password = await bcrypt.hash(password, 10);
+            const user = await usersRepository.createUser({fullName, email, password, phone, role});
 
             sendResponse(ctx, { user }, 201);
         } catch (error) {
@@ -55,14 +51,14 @@ class UsersController {
     async getUsers(ctx: Context) {
         try {
             const page = Number(ctx.request.query.page) || 1;
-            const limit = Number(ctx.request.query.pageSize) || 10;
+            const take = Number(ctx.request.query.pageSize) || 10;
 
-            const skip = (page - 1) * limit;
-            const users = await usersRepository.getAllUsers({skip, limit});
+            const skip = (page - 1) * take;
+            const users = await usersRepository.getAllUsers({skip, take});
             const totalUsers = await usersRepository.getTotalUsersCount();
-            const totalPages = Math.ceil(totalUsers / limit);
+            const totalPages = Math.ceil(totalUsers / take);
 
-            sendResponse(ctx, {users, totalCount: totalUsers, totalPages, currentPage: page, limit});
+            sendResponse(ctx, {users, totalCount: totalUsers, totalPages, currentPage: page, take});
         } catch (error) {
             sendErrorResponse(ctx, error);
         }

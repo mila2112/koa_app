@@ -34,3 +34,8 @@ export interface DeleteCarRequest {
 export interface GetUserCarByIdRequest {
     id: number;
 }
+
+export enum Roles {
+    User = "user",
+    Admin = "admin"
+}
