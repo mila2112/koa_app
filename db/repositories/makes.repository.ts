@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma, Make } from "@prisma/client";
+import { Make } from "@prisma/client";
 import { DatabaseErrorFactory } from "../../src/errors/customErrors";
-
-const prisma = new PrismaClient();
+import { prisma } from "../prisma/index";
 
 class MakesRepository {
     async getCarsMakes() : Promise<Make[]> {

@@ -1,7 +1,6 @@
-import {Prisma, PrismaClient, Car } from "@prisma/client";
+import {Prisma, Car } from "@prisma/client";
 import { DatabaseErrorFactory, NotFoundError, ValidationError } from "../../src/errors/customErrors";
-
-const prisma = new PrismaClient();
+import { prisma } from "../prisma/index";
 
 class CarsRepository {
     async createCar(data: Prisma.CarUncheckedCreateInput) {
@@ -43,9 +42,6 @@ class CarsRepository {
             });
         } catch (error: any) {
             console.log(error);
-            if (error.code === 'P2002' && error.meta?.target?.includes('vin')) {
-                throw new ValidationError('A car with this VIN already exists');
-            };
 
             if (error instanceof NotFoundError) {
                 throw error;
@@ -119,18 +115,18 @@ class CarsRepository {
 
     async editCar(carId: number, userId: number, data: Prisma.CarUncheckedUpdateInput) {
         try {
-            const updateData: Prisma.CarUncheckedUpdateInput = {
+            const updateData: Prisma.CarUpdateInput = {
                 year: data.year ?? undefined,
                 price: data.price ?? undefined,
                 vin: data.vin ?? undefined,
             };
 
             if (data.modelId) {
-                (updateData as any).model = { connect: { id: data.modelId } };
+                updateData.model = { connect: { id: data.modelId as number } };
             }
 
             if (data.makeId) {
-                (updateData as any).make = { connect: { id: data.makeId } };
+                updateData.make = { connect: { id: data.makeId as number} };
             }
 
             return await prisma.car.update({
@@ -142,8 +138,10 @@ class CarsRepository {
             });
         } catch (error: any) {
             console.log(error);
-            if (error.code === 'P2002' && error.meta?.target?.includes('vin')) {
-                throw new ValidationError('A car with this VIN already exists');
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ValidationError('A car with this VIN already exists');
+                }
             }
             if (error instanceof NotFoundError) {
                 throw error;

@@ -5,8 +5,8 @@ import { modelsRepository } from "../../db/repositories/models.repository";
 class ModelsController {
     async getCarsModels(ctx: Context) {
         try {
-            const { id } = ctx.params;
-            const models = await modelsRepository.getCarsModelsByMakeId(Number(id));
+            const id = Number.parseInt(ctx.params.id)
+            const models = await modelsRepository.getCarsModelsByMakeId(id);
 
             sendResponse(ctx, { models }, 201);
         } catch (error) {

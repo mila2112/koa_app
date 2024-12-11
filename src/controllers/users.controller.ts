@@ -66,14 +66,14 @@ class UsersController {
 
     async deleteUser(ctx: Context) {
         try {
-            const { id } = ctx.params;
+            const id = Number.parseInt(ctx.params.id);
 
-            const user = await usersRepository.findById(Number(id));
+            const user = await usersRepository.findById(id);
             if (!user) {
                 throw new NotFoundError('User not found');
             }
 
-            await usersRepository.deleteUser(Number(id));
+            await usersRepository.deleteUser(id);
 
             sendResponse(ctx, { message: 'User has been successfully deleted.' });
         } catch (error) {

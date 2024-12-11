@@ -1,7 +1,7 @@
-import { PrismaClient, Prisma, User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { DatabaseErrorFactory } from "../../src/errors/customErrors";
+import { prisma } from "../prisma/index";
 
-const prisma = new PrismaClient();
 
 class UsersRepository {
     async createUser(data: Prisma.UserCreateInput): Promise<Omit<User, 'password'>> {

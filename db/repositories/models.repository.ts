@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma, Model } from "@prisma/client";
+import { Model } from "@prisma/client";
 import { DatabaseErrorFactory } from "../../src/errors/customErrors";
-
-const prisma = new PrismaClient();
+import { prisma } from "../prisma/index";
 
 class ModelsRepository {
     async getCarsModelsByMakeId(id: number): Promise<Model[]> {
