@@ -1,8 +1,6 @@
-import {Prisma, PrismaClient, Car } from "@prisma/client";
-import { DatabaseErrorFactory, NotFoundError } from "../../src/errors/customErrors";
-import { EditCarRequest } from "index";
-
-const prisma = new PrismaClient();
+import {Prisma, Car } from "@prisma/client";
+import { DatabaseErrorFactory, NotFoundError, ValidationError } from "../../src/errors/customErrors";
+import { prisma } from "../prisma/index";
 
 class CarsRepository {
     async createCar(data: Prisma.CarUncheckedCreateInput) {
@@ -42,7 +40,9 @@ class CarsRepository {
                     },
                 },
             });
-        } catch (error) {
+        } catch (error: any) {
+            console.log(error);
+
             if (error instanceof NotFoundError) {
                 throw error;
             }
@@ -51,12 +51,13 @@ class CarsRepository {
         }
     }
 
-    async findCarById(id: number) {
+    async findCarById(id: number, userId: number) {
         try {
             return await prisma.car.findUnique({
-                where: { id },
+                where: { id, userId },
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving car by id.');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -69,6 +70,7 @@ class CarsRepository {
                 take: take
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving all cars list.');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -83,6 +85,7 @@ class CarsRepository {
                 take: take
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving user\'s cars list.');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -92,6 +95,7 @@ class CarsRepository {
         try {
             return await prisma.car.count();
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error counting all cars.');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -103,39 +107,42 @@ class CarsRepository {
                 where: { userId }
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error counting user\'s cars.');
             throw DatabaseErrorFactory.from(errorData);
         }
     }
 
-    async editCar(carId: number, data: Prisma.CarUncheckedUpdateInput) {
+    async editCar(carId: number, userId: number, data: Prisma.CarUncheckedUpdateInput) {
         try {
-            if (data.userId) {
-                const userExists = await prisma.user.findUnique({
-                    where: { id: data.userId as number },
-                });
+            const updateData: Prisma.CarUpdateInput = {
+                year: data.year ?? undefined,
+                price: data.price ?? undefined,
+                vin: data.vin ?? undefined,
+            };
 
-                if (!userExists) {
-                    throw new NotFoundError(`User not found`);
-                }
+            if (data.modelId) {
+                updateData.model = { connect: { id: data.modelId as number } };
             }
 
-            const updatedCar = await prisma.car.update({
+            if (data.makeId) {
+                updateData.make = { connect: { id: data.makeId as number} };
+            }
+
+            return await prisma.car.update({
                 where: {
                     id: carId,
+                    userId,
                 },
-                data: {
-                    year: data.year ?? undefined,
-                    price: data.price ?? undefined,
-                    vin: data.vin ?? undefined,
-                    modelId: data.modelId ?? undefined,
-                    makeId: data.makeId ?? undefined,
-                    userId: data.userId ?? undefined,
-                },
+                data: updateData,
             });
-
-            return updatedCar;
-        } catch (error) {
+        } catch (error: any) {
+            console.log(error);
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ValidationError('A car with this VIN already exists');
+                }
+            }
             if (error instanceof NotFoundError) {
                 throw error;
             }
@@ -144,15 +151,16 @@ class CarsRepository {
         }
     }
 
-
-    async deleteCar(id : number) {
+    async deleteCar(id : number, userId: number) {
         try {
             return await prisma.car.delete({
                 where: {
-                    id
+                    id,
+                    userId
                 },
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error deleting car.');
             throw DatabaseErrorFactory.from(errorData);
         }

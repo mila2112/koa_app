@@ -23,7 +23,6 @@ export interface EditCarRequest {
         vin?: string;
         modelId?: number;
         makeId?: number;
-        userId?: number;
     }
 }
 

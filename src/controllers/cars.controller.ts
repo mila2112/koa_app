@@ -1,25 +1,18 @@
 import { Context } from 'koa';
 import { sendErrorResponse, sendResponse } from '../helpers/response.modifier';
-import { CreateCarRequest, EditCarRequest, GetUserCarByIdRequest } from 'index';
+import { CreateCarRequest, EditCarRequest } from 'index';
 import { carsRepository } from "../../db/repositories/cars.repository";
-import { NotFoundError, ValidationError } from "../errors/customErrors";
-import { Roles }  from "../types/index";
+import { NotFoundError } from "../errors/customErrors";
 
 class CarsController {
+
     async createCar(ctx: Context) {
         try {
-            const reqUserId = ctx.state.user.id;
-            const userRole = ctx.state.user.role;
-            let { year, vin, price, makeId, modelId, userId } = ctx.request.body as CreateCarRequest;
-
-            if (userRole ===  Roles.Admin && !userId) {
-                throw new ValidationError('UserId is required for admin');
-            }
-
-            userId = userRole === Roles.Admin ? userId : reqUserId;
+            const userId = Number.parseInt(ctx.params.userId);
+            let { year, vin, price, makeId, modelId } = ctx.request.body as CreateCarRequest;
 
             const car = await carsRepository.createCar(
-                { year, price, vin, userId: userId!, modelId, makeId }
+                { year, price, vin, userId, modelId, makeId }
             );
 
             sendResponse(ctx, { car }, 201);
@@ -30,22 +23,17 @@ class CarsController {
 
     async editCar(ctx: Context) {
         try {
-            const { id } = ctx.params;
+            const userId = Number.parseInt(ctx.params.userId);
+            const id = Number.parseInt(ctx.params.id);
             const { data } = ctx.request.body as EditCarRequest;
-            const reqUserId = ctx.state.user.id;
-            const userRole = ctx.state.user.role;
 
-            if (userRole === Roles.User && data.userId) {
-                throw new ValidationError('User cannot change userId');
-            }
+            const car = await carsRepository.findCarById(id, userId);
 
-            const car = await carsRepository.findCarById(Number(id));
-
-            if(!car || (userRole === Roles.User && car.userId !== reqUserId)) {
+            if(!car) {
                 throw new NotFoundError('Car not found');
             }
 
-            const updatedCar = await carsRepository.editCar(Number(id), data);
+            const updatedCar = await carsRepository.editCar(id, userId, data);
 
             sendResponse(ctx, { updatedCar }, 201);
         } catch (error) {
@@ -55,14 +43,12 @@ class CarsController {
 
     async getUserCarById(ctx: Context) {
         try {
-            const reqUserId = ctx.state.user.id;
-            const userRole = ctx.state.user.role;
+            const userId = Number.parseInt(ctx.params.userId);
+            const id = Number.parseInt(ctx.params.id);
 
-            const { id } = ctx.params;
+            const car = await carsRepository.findCarById(id, userId);
 
-            const car = await carsRepository.findCarById(Number(id));
-
-            if(!car || (userRole === Roles.User && car.userId !== reqUserId)) {
+            if(!car) {
                 throw new NotFoundError('Car not found');
             }
 
@@ -72,27 +58,17 @@ class CarsController {
         }
     }
 
-    async getCarsList(ctx: Context) {
+    async getUsersCarsList(ctx: Context) {
         try {
-            const reqUserId = ctx.state.user.id;
-            const userRole = ctx.state.user.role;
-
+            const userId = Number.parseInt(ctx.params.userId);
             const page = Number(ctx.request.query.page) || 1;
             const pageSize = Number(ctx.request.query.pageSize) || 10;
 
             const skip = (page - 1) * pageSize;
             const take = pageSize;
 
-            let cars;
-            let totalCars;
-
-            if (userRole === Roles.Admin) {
-                cars = await carsRepository.findAllCars({ skip, take });
-                totalCars = await carsRepository.getTotalCarsCount();
-            } else {
-                cars = await carsRepository.findUsersCars(reqUserId, { skip, take });
-                totalCars = await carsRepository.getUsersCarsCount(reqUserId);
-            }
+            const cars = await carsRepository.findUsersCars(userId, { skip, take });
+            const totalCars = await carsRepository.getUsersCarsCount(userId);
 
             const totalPages = Math.ceil(totalCars / pageSize);
 
@@ -108,21 +84,18 @@ class CarsController {
         }
     }
 
-
     async deleteCar(ctx: Context) {
         try {
-            const { id } = ctx.params;
+            const userId = Number.parseInt(ctx.params.userId);
+            const id = Number.parseInt(ctx.params.id);
 
-            const reqUserId = ctx.state.user.id;
-            const userRole = ctx.state.user.role;
+            const car = await carsRepository.findCarById(id, userId);
 
-            const car = await carsRepository.findCarById(id);
-
-            if(!car || (userRole === Roles.User && car.userId !== reqUserId)) {
+            if(!car) {
                 throw new NotFoundError('Car not found');
             }
 
-            await carsRepository.deleteCar(Number(id));
+            await carsRepository.deleteCar(id, userId);
 
             sendResponse(ctx, { message:  'You have successfully delete car' }, 201);
         } catch (error) {

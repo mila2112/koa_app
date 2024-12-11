@@ -15,7 +15,7 @@ usersRouter.post("/sign-in",  validate(validationSchemas.signInSchema), passport
 
 usersRouter.get("/", jwtAuth, validate(validationSchemas.getUsersSchema), usersController.getUsers);
 
-usersRouter.delete("/:id", jwtAuth, permit([Roles.Admin]), validate(validationSchemas.deleteCarSchema), usersController.deleteUser);
+usersRouter.delete("/:id", jwtAuth, permit([Roles.Admin]), validate(validationSchemas.deleteUserSchema), usersController.deleteUser);
 
 export default usersRouter;
 

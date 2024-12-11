@@ -4,8 +4,9 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { usersRepository } from "../../db/repositories/users.repository";
 import { UnauthorizedError } from "../errors/customErrors";
 import bcrypt from "bcryptjs";
-import {Context} from "koa";
+import {Context, Next} from "koa";
 import { sendErrorResponse } from "../helpers/response.modifier";
+import {Roles} from "../types/index";
 
 export const localStrategy = () => {
     passport.use(
@@ -78,16 +79,24 @@ export const permit = (roles: string[]) => {
     return async (ctx: Context, next: () => Promise<any>) => {
         const user = ctx.state.user;
 
-        if (!user) {
-            return sendErrorResponse(ctx, new UnauthorizedError("Authentication required"));
-        }
-
         if (!roles.includes(user.role)) {
             return sendErrorResponse(ctx, new UnauthorizedError("You do not have permission to access this resource"));
         }
 
         await next();
     };
+};
+
+export const validateUserAccess = async (ctx: Context, next: Next) => {
+    const user = ctx.state.user;
+
+    const { userId } = ctx.params;
+
+    if (user.role === Roles.User && Number(userId) !== user.id) {
+        return sendErrorResponse(ctx, new UnauthorizedError("You are not authorized to access this resource"));
+    }
+
+    await next();
 };
 
 
