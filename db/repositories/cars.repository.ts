@@ -119,25 +119,32 @@ class CarsRepository {
 
     async editCar(carId: number, userId: number, data: Prisma.CarUncheckedUpdateInput) {
         try {
+            const updateData: Prisma.CarUncheckedUpdateInput = {
+                year: data.year ?? undefined,
+                price: data.price ?? undefined,
+                vin: data.vin ?? undefined,
+            };
+
+            if (data.modelId) {
+                (updateData as any).model = { connect: { id: data.modelId } };
+            }
+
+            if (data.makeId) {
+                (updateData as any).make = { connect: { id: data.makeId } };
+            }
+
             return await prisma.car.update({
                 where: {
                     id: carId,
-                    userId
+                    userId,
                 },
-                data: {
-                    year: data.year ?? undefined,
-                    price: data.price ?? undefined,
-                    vin: data.vin ?? undefined,
-                    modelId: data.modelId ?? undefined,
-                    makeId: data.makeId ?? undefined
-                },
+                data: updateData,
             });
-
         } catch (error: any) {
             console.log(error);
             if (error.code === 'P2002' && error.meta?.target?.includes('vin')) {
                 throw new ValidationError('A car with this VIN already exists');
-            };
+            }
             if (error instanceof NotFoundError) {
                 throw error;
             }
@@ -145,7 +152,6 @@ class CarsRepository {
             throw DatabaseErrorFactory.from(errorData);
         }
     }
-
 
     async deleteCar(id : number, userId: number) {
         try {
