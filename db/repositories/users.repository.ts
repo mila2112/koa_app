@@ -11,6 +11,7 @@ class UsersRepository {
                 omit: { password: true },
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Failed to create user');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -34,6 +35,7 @@ class UsersRepository {
                 where: { id },
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving user by ID.');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -47,6 +49,7 @@ class UsersRepository {
                 omit: { password: true },
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving users.');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -57,6 +60,7 @@ class UsersRepository {
         try {
             return await prisma.user.count();
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error retrieving users count.');
             throw DatabaseErrorFactory.from(errorData);
         }
@@ -68,6 +72,7 @@ class UsersRepository {
                 where: { id },
             });
         } catch (error) {
+            console.log(error);
             const errorData = DatabaseErrorFactory.createErrorData(error, 'Error deleting user.');
             throw DatabaseErrorFactory.from(errorData);
         }

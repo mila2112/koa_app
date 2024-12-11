@@ -1,2 +1,4 @@
-export * from "./users.routes";
-export * from "./cars.routes";
+export * from "./users";
+export * from "./cars";
+export * from "./makes";
+export * from "./models";

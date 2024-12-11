@@ -26,19 +26,22 @@ export const validationSchemas = {
     },
 
     createCarSchema: {
+        params: Joi.object({
+            userId: Joi.number().positive().required(),
+        }),
         body: Joi.object({
-            year: Joi.number().integer().required(),
-            price: Joi.number().min(0).required(),
+            year: Joi.number().integer().positive().required(),
+            price: Joi.number().positive().required(),
             vin: Joi.string().alphanum().length(17).required(),
-            modelId: Joi.number().required(),
-            makeId: Joi.number().required(),
-            userId: Joi.number().optional(),
+            modelId: Joi.number().positive().required(),
+            makeId: Joi.number().positive().required()
         }),
     },
 
     editCarSchema: {
         params: Joi.object({
-            id: Joi.number().required(),
+            userId: Joi.number().positive().required(),
+            id: Joi.number().positive().required(),
         }),
         body: Joi.object({
             data: Joi.object({
@@ -46,35 +49,44 @@ export const validationSchemas = {
                 price: Joi.number().min(0).optional(),
                 vin: Joi.string().alphanum().length(17).optional(),
                 modelId: Joi.number().optional(),
-                makeId: Joi.number().optional(),
-                userId: Joi.number().optional(),
+                makeId: Joi.number().optional()
             }).required()
         }),
     },
 
     deleteCarSchema: {
         params: Joi.object({
-            id: Joi.number().required(),
+            userId: Joi.number().positive().required(),
+            id: Joi.number().positive().required(),
         }),
     },
 
     getUserCarByIdSchema: {
         params: Joi.object({
-            id: Joi.number().required(),
+            userId: Joi.number().positive().required(),
+            id: Joi.number().positive().required(),
         }),
     },
 
     deleteUserSchema: {
         params: Joi.object({
-            id: Joi.number().required(),
+            id: Joi.number().positive().required(),
         }),
     },
 
-
-    getCarsListSchema: {
+    getUsersCarsListSchema: {
+        params: Joi.object({
+            userId: Joi.number().positive().required(),
+        }),
         query: Joi.object({
             page: Joi.number().integer().min(1).default(1),
             pageSize: Joi.number().integer().min(1).default(10)
+        }),
+    },
+
+    getModelsByMakeIdSchema: {
+        params: Joi.object({
+            id: Joi.number().positive().required(),
         }),
     },
 };

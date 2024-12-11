@@ -40,7 +40,7 @@ class UsersController {
                     { expiresIn: '1h' }
                 );
 
-                sendResponse(ctx, { message: 'Logged in successfully', token, role: user.role } );
+                sendResponse(ctx, { message: 'Logged in successfully', token, id: user.id, role: user.role } );
             })(ctx, next);
         } catch (error) {
             sendErrorResponse(ctx, error);
