@@ -7,6 +7,7 @@ import { sendErrorResponse, sendResponse } from '../helpers/response.modifier';
 import { SignUpRequest } from 'index';
 import passport from "koa-passport";
 import * as process from "node:process";
+import { blacklistToken } from "../helpers/tokenBlacklist";
 
 class UsersController {
     async signUp(ctx: Context) {
@@ -80,6 +81,22 @@ class UsersController {
             sendErrorResponse(ctx, error);
         }
     }
+
+    async signOut(ctx: Context) {
+        try {
+            const token = ctx.headers['authorization']?.split(' ')[1];
+            if (!token) {
+                return sendErrorResponse(ctx, new Error('No token provided'));
+            }
+
+            blacklistToken(token);
+
+            sendResponse(ctx, { message: 'Logged out successfully' });
+        } catch (error) {
+            sendErrorResponse(ctx, error);
+        }
+    }
+
 
 
 }

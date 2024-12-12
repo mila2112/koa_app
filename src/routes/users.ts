@@ -17,5 +17,8 @@ usersRouter.get("/", jwtAuth, validate(validationSchemas.getUsersSchema), usersC
 
 usersRouter.delete("/:id", jwtAuth, permit([Roles.Admin]), validate(validationSchemas.deleteUserSchema), usersController.deleteUser);
 
+usersRouter.post("/sign-out", jwtAuth, usersController.signOut);
+
+
 export default usersRouter;
 
