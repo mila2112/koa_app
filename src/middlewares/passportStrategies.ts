@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import {Context, Next} from "koa";
 import { sendErrorResponse } from "../helpers/response.modifier";
 import {Roles} from "../types/index";
+import { isTokenBlacklisted } from "../helpers/tokenBlacklist";
 
 export const localStrategy = () => {
     passport.use(
@@ -65,6 +66,12 @@ export const jwtStrategy = () => {
 };
 
 export const jwtAuth = async (ctx: Context, next: () => Promise<any>) => {
+    const token = ctx.headers['authorization']?.split(' ')[1];  // Extract token from "Authorization" header
+
+    if (token && isTokenBlacklisted(token)) {
+        return sendErrorResponse(ctx, new UnauthorizedError('Token is invalidated'));
+    }
+
     return passport.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err || !user) {
             return sendErrorResponse(ctx, new UnauthorizedError('Authentication failed'));
