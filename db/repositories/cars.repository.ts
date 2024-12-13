@@ -82,7 +82,11 @@ class CarsRepository {
             return await prisma.car.findMany({
                 where: { userId },
                 skip: skip,
-                take: take
+                take: take,
+                include: {
+                    make: true,
+                    model: true,
+                },
             });
         } catch (error) {
             console.log(error);
